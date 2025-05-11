@@ -1,6 +1,35 @@
 \section{Introduction}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. This project is based on the Financial Advisor Bot template \citep{mai2024stockgpt}. The aim is to build an explainable investment advisor focusing on companies driving the Generative AI sector.
+Artificial Intelligence (AI) continues to reshape global industries, with Generative AI (GenAI) standing out as one of the most influential recent developments. GenAI models, such as large language models (LLMs) and diffusion architectures, have driven widespread adoption and significant investment, particularly in the technology sector. Yet, for retail investors, the tools available to access this growth remain largely generic and inaccessible, both in terms of domain focus and interpretability.
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec vitae sapien ut libero venenatis faucibus. Nullam quis ante. This section introduces the motivation, domain, and user focus.
+This project responds to that gap by proposing the \textbf{GenAI Advisor}, a system that delivers explainable stock recommendations specifically for companies driving or enabling the GenAI revolution. The work is based on the \textit{Financial Advisor Bot} template and aims to serve non-technical users by providing accessible, transparent investment signals that go beyond traditional model outputs.
+
+\subsection{Concept}
+
+The GenAI Advisor is conceived as a personalised financial guidance tool designed to support individual investors interested in the Generative AI sector. It provides users with interpretable recommendations—whether to buy, hold, or sell specific stocks—alongside human-readable explanations for these decisions. Unlike traditional investment tools that obscure decision logic behind opaque algorithms or technical jargon, this system foregrounds explainability and domain relevance.
+
+At its core, the GenAI Advisor is built on the belief that financial tools should not only be accurate but also comprehensible. This is particularly important in thematic investing, where users are drawn not just by quantitative performance, but by an interest in specific technological trends. In this context, the system acts as a digital intermediary between complex market signals and users' intuitive understanding, offering advice that is grounded, traceable, and aligned with a clearly scoped set of companies.
+
+The conceptual novelty lies in its hybrid orientation: it combines evidence-driven financial analysis with a commitment to interpretability. The Advisor does not aim to outperform the market through high-frequency trading or proprietary forecasting. Instead, it focuses on accessibility, domain focus, and trustworthiness—delivering insights that users can understand, question, and use as a basis for further research. In doing so, it invites users into the decision-making loop rather than substituting for it.
+
+Furthermore, the GenAI Advisor embraces thematic integrity by carefully curating its stock universe. It avoids general-purpose technology firms in favour of those with demonstrable involvement in the GenAI ecosystem—whether through infrastructure, tooling, model development, or commercial deployment. The rationale for inclusion and exclusion of specific companies is detailed in the project scope (Section~\ref{sec:scope}). This conceptual grounding ensures that recommendations are not only technically derived but also strategically aligned with the user’s thematic intent.
+
+\subsection{Motivation}
+
+The motivation for this project is both technical and user-oriented. On the one hand, GenAI is an emerging thematic investment opportunity that is underserved by existing tools. On the other, there is a growing demand for transparent, user-friendly AI systems in the financial domain.
+
+Traditional robo-advisors, such as Nutmeg and Moneyfarm, provide automated portfolio allocation but are domain-agnostic and opaque in how decisions are made. While open-source trading bots like Freqtrade offer flexibility, they require technical expertise and lack natural language interfaces. StockGPT \citep{mai2024stockgpt} has demonstrated the potential of generative models in stock prediction, while recent work on XAI-integrated forecasting \citep{marey2024xai} highlights the importance of trust and interpretability in financial AI systems.
+
+By combining simple rule-based logic with predictive models and natural language explanations, the GenAI Advisor seeks to deliver recommendations that are not only accurate but also intelligible. The local LLM acts as an interpretive layer rather than a decision engine, ensuring that the output remains grounded in formal logic and statistical inference, while still being comprehensible to the end user.
+
+Beyond usability, the project contributes to responsible AI by ensuring data privacy and reproducibility. No personal or sensitive data is collected or processed, and all data sources are public. The LLM is hosted locally, avoiding transmission of potentially sensitive queries. The system is explicitly designed for educational and demonstrative use and includes appropriate disclaimers to distinguish it from regulated financial services.
+
+\subsection{Scope}
+\label{sec:scope}
+
+The GenAI Advisor focuses on a curated set of publicly traded companies whose business models are materially driven by Generative AI. The portfolio includes firms across three categories: (1) software developers and strategic investors (e.g., Microsoft, Alphabet, Meta, Amazon), (2) hardware providers (e.g., Nvidia, AMD, Intel, Marvell), and (3) infrastructure suppliers (e.g., TSMC, SK hynix, Broadcom, Arista Networks). These companies were selected for their direct contributions to GenAI model development, deployment, or enablement.
+
+To maintain thematic focus and ensure data availability, the system excludes private companies, exposure of which is captured under the strategic investors, and general technology firms lacking core GenAI offerings (e.g., Apple, Netflix). Chinese companies (e.g., Alibaba, Tencent, Baidu) are also excluded due to market access limitations, and restricted financial data.
+
+This scope ensures the system operates within a clearly bounded, analytically defensible domain. It enhances the relevance of recommendations by aligning them with user intent and facilitates reproducible evaluation by focusing on transparent, publicly accessible data.
 
