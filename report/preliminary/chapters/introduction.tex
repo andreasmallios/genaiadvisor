@@ -2,6 +2,8 @@
 
 Artificial Intelligence (AI) continues to reshape global industries, with Generative AI (GenAI) standing out as one of the most influential recent developments. GenAI models, such as large language models (LLMs) and diffusion architectures, have driven widespread adoption and significant investment, particularly in the technology sector. Yet, for retail investors, the tools available to access this growth remain largely generic and inaccessible, both in terms of domain focus and interpretability.
 
+Private equity and venture capital investments in GenAI startups are becoming larger and more targeted as investor strategies evolve with the technology. Funding in GenAI exceeded \$56 billion in 2024, nearly double the \$29 billion recorded in 2023 \citep{spglobal2025}.
+
 As shown in Figure~\ref{fig:genai-investment} below, while the number of funding rounds declined in 2024, the overall deal value surged. This suggests a consolidation of capital into larger, infrastructure-oriented bets, aligning with investor confidence in scalable GenAI deployments. These trends highlight the need for tools that help investors evaluate publicly listed companies best positioned to benefit from this structural shift.
 
 \begin{figure}[h]
@@ -10,8 +12,6 @@ As shown in Figure~\ref{fig:genai-investment} below, while the number of funding
     \caption{\small PE/VC investments in GenAI, 2020–2024. Source: S\&P Global Market Intelligence \citep{spglobal2025}.}
     \label{fig:genai-investment}
 \end{figure}
-
-Private equity and venture capital investments in GenAI startups are becoming larger and more targeted as investor strategies evolve with the technology. Funding in GenAI exceeded \$56 billion in 2024, nearly double the \$29 billion recorded in 2023 \citep{spglobal2025}.
 
 This project responds to that gap by proposing the \textbf{GenAI Advisor}, a system that delivers explainable stock recommendations specifically for companies driving or enabling the GenAI revolution. Based on the \textit{Financial Advisor Bot} template, the system is designed for non-technical users, providing accessible, transparent investment signals that go beyond traditional model outputs.
 
@@ -33,7 +33,7 @@ The motivation for this project is both technical and user-oriented. On one hand
 
 Traditional robo-advisors, such as Nutmeg and Moneyfarm, provide automated portfolio allocation but are domain-agnostic and opaque in how decisions are made. While open-source trading bots like Freqtrade offer flexibility, they require technical expertise and lack natural language interfaces. StockGPT \citep{mai2024stockgpt} demonstrates the potential of generative models in stock prediction, while recent work on XAI-integrated forecasting \citep{marey2024xai} highlights the importance of trust and interpretability in financial AI systems.
 
-By combining simple rule-based logic with predictive models and natural language explanations, the GenAI Advisor aims to deliver recommendations that are not only accurate but also intelligible. The local LLM serves as an interpretive layer rather than a decision engine, ensuring that outputs remain grounded in logic and statistical inference, while still being comprehensible to the user.
+By combining simple rule-based logic with predictive models and natural language explanations, the GenAI Advisor aims to deliver recommendations that are not only accurate but also intelligible. A local LLM serves as an interpretive layer rather than a decision engine, ensuring that outputs remain grounded in logic and statistical inference, while still being comprehensible to the user.
 
 Beyond usability, the project contributes to responsible AI by ensuring data privacy and reproducibility. No personal or sensitive data is collected, and all sources are public. The LLM is hosted locally to avoid transmitting user inputs externally. The system is explicitly intended for educational and demonstrative use, and includes appropriate disclaimers to distinguish it from regulated financial services.
 
