@@ -34,3 +34,5 @@ latexmkrc
 *.bak
 *.swp
 *.swo
+code/.ipynb_checkpoints/prototype-checkpoint.ipynb
+code/.ipynb_checkpoints/test-checkpoint.ipynb
