@@ -4,12 +4,12 @@ This chapter presents a detailed account of the design of the GenAI Advisor syst
 
 \subsection{System Overview \& Design Rationale}
 
-The architecture of the GenAI Advisor system is designed to support explainability, modularity, and extensibility across all components. It is composed of five distinct yet interdependent layers:
+The architecture of the GenAI Advisor system is composed of five distinct yet interdependent layers:
 
 \begin{enumerate}
-    \item \textbf{Data Pipeline}, responsible for sourcing, cleaning, and transforming financial data into formats suitable for analysis and embedding.
-    \item \textbf{Strategy Engine}, the analytical core that integrates retrieved knowledge and feature representations to generate structured investment insights.
-    \item \textbf{Explanation Generator}, enhances transparency by producing traceable justifications and evidence-backed rationales for each recommendation.
+    \item \textbf{Data Pipeline}, responsible for sourcing, cleaning, and transforming financial data into formats suitable for analysis.
+    \item \textbf{Strategy Engine}, the analytical core that integrates retrieved knowledge to generate structured investment insights.
+    \item \textbf{Explanation Generator}, producing justifications and rationales for each recommendation.
     \item \textbf{User Interface}, delivers an intuitive interaction point for retail users, visualising results in a digestible and accessible format.
     \item \textbf{Backtesting \& Evaluation}, supports validation of generated recommendations through historical simulations, user feedback loops and performance scoring.
 \end{enumerate}
@@ -29,11 +29,11 @@ Scalability is not a goal of the current system, and no scaling mechanisms will 
 
 \subsection{Data Pipeline}
 
-This foundational layer is responsible for acquiring, preparing, and transforming financial data into structured, analysable formats that support both retrieval and modelling. It ensures that the inputs to the system are reliable, consistent, and semantically rich.
+This foundational layer is responsible for acquiring, preparing, and transforming financial data into structured formats that support both retrieval and modelling. It ensures that the inputs to the system are consistent and semantically rich.
 
 \textbf{Data Sources:} Financial data is sourced via the \texttt{yfinance} Python library, which extracts structured data from Yahoo Finance. This includes:
 \begin{itemize}
-    \item Daily OHLCV (open, high, low, close, volume) price data
+    \item Daily price data
     \item Adjusted close prices accounting for dividends and splits
     \item Market fundamentals including P/E ratio, EPS, market capitalisation, and beta
     \item Dividend history, earnings results, and analyst forecasts
@@ -43,9 +43,9 @@ This foundational layer is responsible for acquiring, preparing, and transformin
 \textbf{Pre-processing:} All raw data is immediately pre-processed in memory using \texttt{pandas} and associated libraries before being persisted. This includes:
 \begin{itemize}
     \item Handling of missing values and filtering of anomalous entries
-    \item Normalisation and transformation of numerical columns (e.g. z-score, log returns)
+    \item Normalisation and transformation of numerical columns
     \item Resampling and forward-filling to align time indices across features
-    \item Annotating rows with relevant metadata (e.g. ticker symbol, sector classification, timestamps)
+    \item Annotating rows with relevant metadata
 \end{itemize}
 This pre-processing ensures consistency across all instruments and time periods and reduces computational load in downstream stages.
 
@@ -58,15 +58,6 @@ This pre-processing ensures consistency across all instruments and time periods 
     \item \textbf{Risk signals:} calculated from rolling variance, beta, and return dispersion
     \item \textbf{Embeddings:} tabular records are converted into dense vector representations using Sentence-BERT for semantic similarity and retrieval
 \end{itemize}
-
-\textbf{Database Schema:} The MariaDB schema consists of the following core tables:
-\begin{itemize}
-    \item \texttt{daily\_prices(ticker, trade\_date, open, high, low, close, adj\_close, volume)}
-    \item \texttt{company\_fundamentals(ticker, name, sector, industry, market\_cap, pe\_ratio, eps, beta, dividend\_yield, last\_updated)}
-    \item \texttt{technical\_indicators(ticker, trade\_date, sma\_20, sma\_50, rsi\_14, macd, bollinger\_upper, bollinger\_lower)}
-    \item \texttt{earnings\_calendar(ticker, earnings\_date, expected\_eps, reported\_eps, surprise\_pct)}
-\end{itemize}
-These tables are indexed on \texttt{ticker} and \texttt{date}-related fields to support fast retrieval and filtering during downstream analysis.
 
 \textbf{Design Justification:} The choice of MariaDB for structured data storage reflects a balance between transparency, performance, and system complexity. Relational databases offer well-defined schema enforcement, support for indexed queries, and seamless integration with Python data analysis libraries. This aligns with the project's emphasis on explainability, traceability, and reproducibility. Alternative solutions were considered, including DuckDB for embedded analytics or Parquet-backed storage for columnar efficiency. However, these options introduce either added complexity or are optimised for larger-scale, concurrent systems. For the scope of this project, focusing on iterative prototyping, backtesting, and clarity, MariaDB provides a robust and pedagogically sound foundation.
 
