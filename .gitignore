@@ -1,0 +1,41 @@
+# LaTeX intermediate and auxiliary files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.log
+*.lot
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.xdv
+
+# Build output (PDFs or other)
+# *.pdf
+
+# Editor-specific files
+.vscode/
+*.code-workspace
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Latexmk and TeXShop local files
+latexmkrc
+*.synctex.gz(busy)
+
+# Backup files
+*~
+*.bak
+*.swp
+*.swo
+code/.ipynb_checkpoints/prototype-checkpoint.ipynb
+code/.ipynb_checkpoints/test-checkpoint.ipynb
+
+# Environment Variables and Configuration
+.env
