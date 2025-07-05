@@ -1,0 +1,31 @@
+\section{Minimum Viable Product Approach}
+
+In the development of the GenAI Advisor, a structured Minimum Viable Product (MVP) approach was followed to ensure systematic progress while respecting the constraints of time, computational resources, and project evaluation needs. The MVP methodology allowed for the early identification of potential technical limitations while enabling the iterative refinement of core functionalities essential to the project.
+
+The MVP was designed to operate fully offline, respecting user data privacy and ensuring explainability. It integrates four layers: data ingestion, strategy engine, explanation generation, and a user-facing Streamlit interface. The initial focus was on constructing a thin, end-to-end pipeline capable of performing equity data ingestion using Yahoo Finance, caching the data locally in CSV format to avoid repeated API calls while supporting reproducibility.
+
+The strategy engine implemented a simple rule-based mechanism using a moving average crossover technique, providing structured recommendations (BUY or HOLD) alongside clear reasons based on the underlying signal. This approach balanced simplicity with interpretability, aligning with the goal of transparent, explainable AI systems suitable for retail investors.
+
+Explanation generation was initially prototyped with placeholder explanations before being integrated with a locally hosted Mistral 8B model via Ollama, enabling offline large language model inference. This allowed for the generation of user-friendly, clear explanations for investment signals without requiring online API dependencies.
+
+A Streamlit frontend was developed to facilitate user interaction, enabling the entry of tickers, the execution of the pipeline, and the clear display of structured recommendations, explanations, and recent price charts. This immediate feedback loop supported the testing and evaluation processes, aligning with agile development practices.
+
+Pytest was configured to establish a lightweight test-driven development environment, ensuring that data ingestion, strategy engine outputs, and explanation generation remained reliable as further functionalities were layered onto the system.
+
+The MVP was then extended with a backtesting utility, enabling the analysis of recommendations against historical price movements over a defined lookahead period. A batch backtesting pipeline was constructed to systematically test multiple tickers across various dates, generating CSV outputs to support quantitative evaluation. An evaluation notebook was prepared to visualise the distribution of price movements following recommendations, allowing for the analysis of the effectiveness of the generated signals.
+
+This MVP approach ensured that a functioning, test-backed advisor system was available early in the project timeline, providing a robust foundation for evaluation and report writing, and allowing for targeted refinement and iteration in subsequent development sprints.
+
+\section{Implementation Challenges in the MVP}
+
+During the MVP development, several non-trivial challenges arose that required careful technical decisions to ensure system robustness and correctness. Firstly, handling timezone consistency was critical when implementing the backtesting pipeline. The \texttt{yfinance} library returns time series data indexed with a timezone, whereas initial cutoff dates for historical evaluations were timezone-naive, resulting in type errors during comparisons. This was resolved by explicitly localising the cutoff dates using \texttt{pd.to\_datetime().tz\_localize('America/New\_York')}, ensuring consistent and error-free slicing of historical data.
+
+Another challenge involved achieving reproducible and API-resilient data ingestion through CSV caching. Early iterations faced hidden header misalignments and unnamed indexes when saving and reloading data, which caused failures in downstream modules. This was addressed by enforcing consistent use of the \texttt{index\_label} parameter during saving and explicitly specifying \texttt{index\_col} during loading, ensuring data could be reliably reused without corruption.
+
+Integrating a local large language model explanation generator with \texttt{Ollama} also required precise engineering. Instead of using an external API, a local Mistral 8B model was leveraged to maintain offline functionality and data privacy. This necessitated the design of a robust subprocess management approach, correctly piping structured prompts and capturing outputs while handling encoding and potential model unavailability gracefully.
+
+Additionally, implementing consistent test discovery using \texttt{Pytest} required an understanding of Python's module resolution, as the project initially failed to locate modules due to the package structure. This was resolved by enforcing the use of \texttt{PYTHONPATH=.} during test execution, ensuring reliable test discovery across environments.
+
+Finally, careful attention was required in the design of the backtesting pipeline to prevent future data leakage while computing lookahead returns. Ensuring that data used to generate recommendations strictly respected the cutoff date, and accurately measuring post-recommendation price movements, was critical for the validity of the evaluation metrics used in the later stages of the project.
+
+Collectively, addressing these challenges not only ensured the stability and correctness of the GenAI Advisor MVP but also demonstrated disciplined software engineering practices that align with industry and academic expectations for reliable, reproducible systems.
