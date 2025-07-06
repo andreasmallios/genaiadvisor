@@ -10,17 +10,14 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 from pathlib import Path
 
-# Model saving/loading directory: /code/models
-PROJECT_ROOT = Path(__file__).resolve().parents[2]  # /code
+# Directory setup
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
 MODEL_DIR = PROJECT_ROOT / "models"
 DATA_DIR = PROJECT_ROOT / "data"
 
-
 def fetch_ticker_data(ticker: str, period: str = "10y", interval: str = "1d") -> pd.DataFrame:
-    # Correctly use DATA_DIR defined globally
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     csv_path = DATA_DIR / f"{ticker}_10y.csv"
-
     if csv_path.exists():
         print(f"[INFO] Loading cached data for {ticker} from {csv_path}")
         df = pd.read_csv(csv_path, index_col="Date", parse_dates=True)
@@ -34,9 +31,7 @@ def fetch_ticker_data(ticker: str, period: str = "10y", interval: str = "1d") ->
         df.index.name = "Date"
         df.to_csv(csv_path)
         print(f"[INFO] Saved data for {ticker} to {csv_path}")
-
     return df
-
 
 def compute_features(df: pd.DataFrame) -> pd.DataFrame:
     df_feat = df.copy()
@@ -65,7 +60,7 @@ def compute_features(df: pd.DataFrame) -> pd.DataFrame:
 
 def create_labels(df: pd.DataFrame, threshold=0.02) -> pd.Series:
     future_returns = df['Close'].shift(-10) / df['Close'] - 1
-    labels = np.where(future_returns > threshold, 1, 0)  # 1 = BUY, 0 = HOLD
+    labels = np.where(future_returns > threshold, 1, np.where(future_returns < -threshold, -1, 0))
     return pd.Series(labels, index=df.index)
 
 def train_and_save_models(ticker="MSFT"):
@@ -112,13 +107,16 @@ def predict_signal(df: pd.DataFrame) -> dict:
     lr = joblib.load(MODEL_DIR / "lr_model.pkl")
     pred_lr = lr.predict(features_scaled)[0]
 
-    buy_count = pred_rf + pred_lr
-    if buy_count >= 1:
+    pred_sum = pred_rf + pred_lr
+    if pred_sum >= 1:
         recommendation = "BUY"
-        reason = "ML classifiers (Random Forest / Logistic Regression) indicate a BUY condition."
+        reason = "ML classifiers indicate a BUY condition based on historical patterns."
+    elif pred_sum <= -1:
+        recommendation = "SELL"
+        reason = "ML classifiers indicate a SELL condition based on historical patterns."
     else:
         recommendation = "HOLD"
-        reason = "ML classifiers do not indicate a strong BUY condition."
+        reason = "ML classifiers do not indicate a strong BUY or SELL condition."
 
     return {
         "signal": "ML Classifier",

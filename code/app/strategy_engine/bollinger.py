@@ -10,10 +10,22 @@ def bollinger_band_signal(df: pd.DataFrame, window=20, num_std=2):
 
     if latest['Close'] < latest['Lower']:
         recommendation = "BUY"
-        reason = f"Price {latest['Close']:.2f} crossed below lower Bollinger Band, indicating oversold conditions."
+        reason = (
+            f"Price {latest['Close']:.2f} crossed below lower Bollinger Band "
+            f"{latest['Lower']:.2f}, indicating oversold conditions and a potential rebound."
+        )
+    elif latest['Close'] > latest['Upper']:
+        recommendation = "SELL"
+        reason = (
+            f"Price {latest['Close']:.2f} crossed above upper Bollinger Band "
+            f"{latest['Upper']:.2f}, indicating overbought conditions and a potential pullback."
+        )
     else:
         recommendation = "HOLD"
-        reason = f"Price {latest['Close']:.2f} is not below lower Bollinger Band."
+        reason = (
+            f"Price {latest['Close']:.2f} is within Bollinger Bands "
+            f"{latest['Lower']:.2f} - {latest['Upper']:.2f}, indicating no clear signal."
+        )
 
     return {
         "signal": "Bollinger Bands",

@@ -9,13 +9,17 @@ def stochastic_signal(df: pd.DataFrame, k_window=14, d_window=3):
     latest = df.iloc[-1]
     prev = df.iloc[-2]
 
-    # Signal when %K crosses above %D below 20 (oversold)
+    # BUY: %K crosses above %D below 20 (oversold)
     if (prev['%K'] < prev['%D']) and (latest['%K'] > latest['%D']) and (latest['%K'] < 20):
         recommendation = "BUY"
-        reason = f"Stochastic %K crossed above %D below 20, indicating potential reversal."
+        reason = f"Stochastic %K crossed above %D below 20, indicating potential bullish reversal."
+    # SELL: %K crosses below %D above 80 (overbought)
+    elif (prev['%K'] > prev['%D']) and (latest['%K'] < latest['%D']) and (latest['%K'] > 80):
+        recommendation = "SELL"
+        reason = f"Stochastic %K crossed below %D above 80, indicating potential bearish reversal."
     else:
         recommendation = "HOLD"
-        reason = f"Stochastic conditions do not indicate a reversal."
+        reason = "Stochastic conditions do not indicate a clear reversal."
 
     return {
         "signal": "Stochastic Oscillator",

@@ -21,9 +21,12 @@ def rsi_signal(df: pd.DataFrame, window=14):
     if latest['RSI'] < 30:
         recommendation = "BUY"
         reason = f"RSI ({latest['RSI']:.2f}) indicates oversold conditions."
+    elif latest['RSI'] > 70:
+        recommendation = "SELL"
+        reason = f"RSI ({latest['RSI']:.2f}) indicates overbought conditions."
     else:
         recommendation = "HOLD"
-        reason = f"RSI ({latest['RSI']:.2f}) does not indicate oversold conditions."
+        reason = f"RSI ({latest['RSI']:.2f}) indicates neutral conditions."
 
     return {
         "signal": "RSI",

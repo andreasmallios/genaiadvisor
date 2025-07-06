@@ -12,9 +12,12 @@ def macd_signal(df: pd.DataFrame, short_window=12, long_window=26, signal_window
     if latest['MACD'] > latest['Signal_Line']:
         recommendation = "BUY"
         reason = "MACD is above the Signal Line, indicating potential bullish momentum."
+    elif latest['MACD'] < latest['Signal_Line']:
+        recommendation = "SELL"
+        reason = "MACD is below the Signal Line, indicating potential bearish momentum."
     else:
         recommendation = "HOLD"
-        reason = "MACD is below the Signal Line, insufficient signal to buy."
+        reason = "MACD and Signal Line are equal, indicating no clear momentum."
 
     return {
         "signal": "MACD",
