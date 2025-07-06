@@ -29,3 +29,13 @@ Additionally, implementing consistent test discovery using \texttt{Pytest} requi
 Finally, careful attention was required in the design of the backtesting pipeline to prevent future data leakage while computing lookahead returns. Ensuring that data used to generate recommendations strictly respected the cutoff date, and accurately measuring post-recommendation price movements, was critical for the validity of the evaluation metrics used in the later stages of the project.
 
 Collectively, addressing these challenges not only ensured the stability and correctness of the GenAI Advisor MVP but also demonstrated disciplined software engineering practices that align with industry and academic expectations for reliable, reproducible systems.
+
+\section{Expansion of the MVP with Advanced Signal Architecture}
+
+Following the initial MVP construction, the GenAI Advisor was extended with a modular, advanced strategy engine architecture during the first development sprint. This refactor transitioned the single-signal SMA crossover logic into a structured multi-signal system, allowing for the integration of additional indicators including the Relative Strength Index (RSI) and the Moving Average Convergence Divergence (MACD).
+
+Each signal was implemented as an independent module within the system, supporting clean separation of concerns and enabling systematic unit testing. The RSI module detects oversold conditions, while the MACD module identifies momentum changes based on the convergence and divergence of moving averages. These signals were integrated into a combined recommendation engine that uses a voting logic approach: the system recommends a BUY signal if any of the signals indicate favourable conditions, while defaulting to HOLD otherwise. This design allows the system to leverage multiple perspectives on market conditions while maintaining transparency and interpretability.
+
+The modular structure not only facilitated the immediate extension of the strategy engine during this sprint but also positioned the system for future enhancement with additional signals or weighting schemes. Throughout this refactor, test-driven development was maintained using Pytest, ensuring the correctness of individual signals and the consistency of the combined recommendation logic.
+
+This enhancement significantly increased the system's analytical capabilities while preserving the key goals of offline operation and explainability, aligning with the broader objectives of the GenAI Advisor project.

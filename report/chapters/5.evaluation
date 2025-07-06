@@ -1,0 +1,13 @@
+\section{Evaluation of the Extended MVP}
+
+Following the successful construction of the initial MVP, a systematic evaluation was carried out to assess the correctness, reliability, and effectiveness of the GenAI Advisor as advanced features were layered onto the system.
+
+The first step in this evaluation phase was the implementation of a modular strategy engine architecture, enabling the integration of additional signals including RSI (Relative Strength Index) and MACD (Moving Average Convergence Divergence), alongside the existing SMA crossover strategy. Each of these signals was designed as a modular Python component, facilitating independent unit testing and allowing for clear traceability of each signal's contribution to the overall recommendation engine.
+
+Test-driven development practices were applied rigorously using \texttt{Pytest}, ensuring that the advanced signals operated correctly and that the recommendation engine's logic for combining multiple signals into final recommendations remained consistent and transparent. Tests confirmed that the system produced valid outputs under a variety of market conditions, providing confidence in the robustness of the extended MVP.
+
+To evaluate the practical performance of the recommendation signals, a batch backtesting pipeline was developed, allowing the system to be tested systematically across multiple tickers and historical dates with a defined lookahead period. This pipeline produced structured CSV outputs containing recommendations and subsequent price movements, providing a clear dataset for analysis.
+
+An evaluation notebook was prepared using Jupyter, processing these CSV outputs to visualise the distribution of price movements following the system's recommendations and to analyse the effectiveness of each signal type in isolation and in combination. Plots such as histograms and boxplots were generated to illustrate the distribution of returns following recommendations, and initial quantitative metrics were computed, such as the proportion of BUY signals that resulted in positive returns.
+
+These evaluation steps ensured that the extended MVP did not introduce regressions while adding advanced functionality and that it continued to align with the goals of interpretability, offline operation, and explainability. The evaluation process also provided data-driven evidence to support further refinement of signal thresholds, signal weighting, and prompt engineering for explanation generation in subsequent development sprints.
