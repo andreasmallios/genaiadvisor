@@ -1,7 +1,8 @@
 import pandas as pd
 from datetime import timedelta
 from app.data_ingestion import fetch_ticker_data
-from app.strategy_engine import generate_recommendation
+# from app.strategy_engine import generate_recommendation
+from app.strategy_engine.engine import generate_combined_recommendation
 
 def backtest_ticker(ticker: str, as_of_date: str, lookahead_days: int = 30) -> dict:
     """
@@ -17,7 +18,8 @@ def backtest_ticker(ticker: str, as_of_date: str, lookahead_days: int = 30) -> d
     if df.empty:
         raise ValueError(f"No data available for {ticker} up to {as_of_date}.")
 
-    recommendation = generate_recommendation(df, ticker)
+    # recommendation = generate_recommendation(df, ticker)
+    recommendation = generate_combined_recommendation(df, ticker)
 
     # Evaluate actual price movement over lookahead_days
     df_future = fetch_ticker_data(ticker)
