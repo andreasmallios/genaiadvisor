@@ -1,13 +1,13 @@
 import pandas as pd
 from datetime import timedelta
 from app.data_ingestion import fetch_ticker_data
-# from app.strategy_engine import generate_recommendation
 from app.strategy_engine.engine import generate_combined_recommendation
+from app.explanation_generator import generate_explanation
 
 def backtest_ticker(ticker: str, as_of_date: str, lookahead_days: int = 30) -> dict:
     """
     Run a backtest for the given ticker as of a historical date.
-    Returns recommendation and price movement over lookahead_days.
+    Returns recommendation, explanation, and price movement over lookahead_days.
     """
     cutoff_date = pd.to_datetime(as_of_date).tz_localize('America/New_York')
 
@@ -18,8 +18,11 @@ def backtest_ticker(ticker: str, as_of_date: str, lookahead_days: int = 30) -> d
     if df.empty:
         raise ValueError(f"No data available for {ticker} up to {as_of_date}.")
 
-    # recommendation = generate_recommendation(df, ticker)
+    # Generate structured recommendation
     recommendation = generate_combined_recommendation(df, ticker)
+
+    # Generate textual explanation using local LLM
+    explanation = generate_explanation(recommendation)  # returns a string
 
     # Evaluate actual price movement over lookahead_days
     df_future = fetch_ticker_data(ticker)
@@ -39,6 +42,7 @@ def backtest_ticker(ticker: str, as_of_date: str, lookahead_days: int = 30) -> d
         "as_of_date": as_of_date,
         "recommendation": recommendation["recommendation"],
         "reason": recommendation["reason"],
+        "explanation": explanation,  # now added
         "price_change_%": price_change
     }
 
