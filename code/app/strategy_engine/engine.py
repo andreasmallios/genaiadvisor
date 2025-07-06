@@ -1,6 +1,8 @@
 from app.strategy_engine.sma import sma_crossover_signal
 from app.strategy_engine.rsi import rsi_signal
 from app.strategy_engine.macd import macd_signal
+from app.strategy_engine.bollinger import bollinger_band_signal
+from app.strategy_engine.stochastic import stochastic_signal
 from app.strategy_engine.ml_classifier import predict_signal
 
 def generate_combined_recommendation(df, ticker):
@@ -8,6 +10,8 @@ def generate_combined_recommendation(df, ticker):
         sma_crossover_signal(df),
         rsi_signal(df),
         macd_signal(df),
+        bollinger_band_signal(df),
+        stochastic_signal(df),
         predict_signal(df)  # ML classifier signal
     ]
 

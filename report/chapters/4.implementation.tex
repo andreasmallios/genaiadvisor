@@ -39,3 +39,22 @@ Each signal was implemented as an independent module within the system, supporti
 The modular structure not only facilitated the immediate extension of the strategy engine during this sprint but also positioned the system for future enhancement with additional signals or weighting schemes. Throughout this refactor, test-driven development was maintained using Pytest, ensuring the correctness of individual signals and the consistency of the combined recommendation logic.
 
 This enhancement significantly increased the system's analytical capabilities while preserving the key goals of offline operation and explainability, aligning with the broader objectives of the GenAI Advisor project.
+
+\subsection{Strategy Engine Enhancements}
+
+Building upon the Minimum Viable Product developed in Week 1, the strategy engine was expanded to include additional technical indicators to enhance the quality and diversity of signals while maintaining transparency and interpretability. 
+
+Two new signals were implemented:
+
+\begin{itemize}
+    \item \textbf{Bollinger Bands}: A volatility-based indicator using a 20-day simple moving average (SMA) with upper and lower bands set at two standard deviations. A BUY signal is generated when the closing price crosses below the lower band, indicating potential oversold conditions and a likelihood of reversal.
+    \item \textbf{Stochastic Oscillator}: A momentum indicator utilising the \%K and \%D lines over a 14-day window. A BUY signal is triggered when the \%K line crosses above the \%D line while both are below the threshold of 20, signalling oversold conditions with potential upward momentum.
+\end{itemize}
+
+These indicators complement the existing SMA Crossover, RSI, MACD, and the ML-based classifier, creating a hybrid strategy engine capable of generating diverse, explainable signals across trend, momentum, and volatility dimensions.
+
+The implementation of these signals was modular, with each signal encapsulated in a dedicated module (\texttt{bollinger.py}, \texttt{stochastic.py}) within the \texttt{strategy\_engine} folder, following the same structured dictionary return pattern as the existing signals. This consistency ensured seamless integration with the central aggregation function in \texttt{engine.py}, enabling the new signals to contribute to the hybrid voting mechanism used for recommendation generation.
+
+To maintain robustness, unit tests were created to verify that both the Bollinger Bands and Stochastic Oscillator modules returned valid recommendations (BUY or HOLD) and contained structured, interpretable outputs. These tests ensured reliability and integration readiness within the broader offline pipeline.
+
+By expanding the strategy engine with these additional signals, the system now offers a richer set of signals while preserving explainability and reproducibility, aligning with the goals of the GenAI Advisor project to provide transparent, offline investment insights to retail investors.
