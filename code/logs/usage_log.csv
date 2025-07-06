@@ -2,3 +2,4 @@ timestamp,ticker,recommendation,explanation,latency_ms
 2025-07-05T20:48:12.700417,MSFT,BUY,"Investment: Microsoft (MSFT)
 Action: Buy
 Rationale: The 50-day Simple Moving Average (SMA) is above ...",2701
+2025-07-05T21:13:06.419952,MSFT,BUY,"Invest in Microsoft (MSFT)! The 50-day Simple Moving Average (SMA) is above the 200-day SMA, suggest...",2749

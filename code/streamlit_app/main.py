@@ -4,11 +4,13 @@ import sys
 import os
 import time
 
+
 # Ensure local imports
 sys.path.append(os.path.join(os.path.dirname(__file__), ".."))
 
 from app.data_ingestion import fetch_ticker_data
-from app.strategy_engine import generate_recommendation
+# from app.strategy_engine import generate_recommendation
+from app.strategy_engine.engine import generate_combined_recommendation
 from app.explanation_generator import generate_explanation
 from app.logger import log_interaction
 
@@ -32,7 +34,8 @@ if run_analysis:
         st.line_chart(df["Close"])
 
         with st.spinner("Generating recommendation..."):
-            recommendation = generate_recommendation(df, ticker.upper())
+            # recommendation = generate_recommendation(df, ticker.upper())
+            recommendation = generate_combined_recommendation(df, ticker)
 
         st.info(f"**Recommendation:** {recommendation['recommendation']}")
         st.write(f"**Reason:** {recommendation['reason']}")
