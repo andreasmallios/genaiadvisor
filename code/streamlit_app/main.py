@@ -73,7 +73,7 @@ with st.expander("ℹ️ What do the signals mean?"):
     - **MACD:** Momentum indicator based on moving averages.
     - **Bollinger Bands:** Shows price volatility and potential breakouts.
     - **Stochastic Oscillator:** Indicates momentum and potential reversals.
-    - **ML Classifier:** Uses machine learning to predict BUY/HOLD signals.
+    - **ML Classifier:** Uses machine learning to predict BUY/HOLD/SELL signals.
     """)
 
 run_analysis = st.button("Run Detailed Analysis")

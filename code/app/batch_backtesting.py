@@ -25,7 +25,9 @@ def run_batch_backtest(tickers, dates, lookahead_days=30):
     print(f"[INFO] Batch backtest results saved to {output_path}")
 
 if __name__ == "__main__":
-    tickers = ["MSFT", "AAPL", "GOOGL", "AMZN"]
-    dates = ["2025-04-01", "2025-05-01", "2025-06-01"]
+    # Load tickers from CSV file
+    tickers_df = pd.read_csv("./data/tickers.csv")
+    tickers = tickers_df["Symbol"].dropna().unique().tolist()
+    dates = ["2025-01-01", "2025-02-01", "2025-03-01", "2025-04-01", "2025-05-01", "2025-06-01"]
 
     run_batch_backtest(tickers, dates, lookahead_days=30)

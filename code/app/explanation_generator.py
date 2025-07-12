@@ -33,7 +33,7 @@ def generate_explanation(recommendation: dict) -> str:
         - Stochastic Oscillator
         - ML Classifier output
 
-        3. **Action:** One clear sentence stating that this analysis is for educational purposes only and does not constitute financial advice.
+        3. **Disclaimer:** One clear sentence stating that this analysis is for educational purposes only and does not constitute financial advice.
 
         **Output instructions:**
         - Return the **'Summary'** on its own line.

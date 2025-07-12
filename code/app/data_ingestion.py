@@ -4,12 +4,12 @@ import yfinance as yf
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data")
 
-def fetch_ticker_data(ticker: str, period: str = "1y", interval: str = "1d") -> pd.DataFrame:
+def fetch_ticker_data(ticker: str, period: str = "10y", interval: str = "1d") -> pd.DataFrame:
     """
     Fetch ticker data cleanly without metadata headers, cache to CSV with Date index.
     """
     os.makedirs(DATA_DIR, exist_ok=True)
-    csv_path = os.path.join(DATA_DIR, f"{ticker}.csv")
+    csv_path = os.path.join(DATA_DIR, f"{ticker}_10y.csv")
 
     if os.path.exists(csv_path):
         print(f"[INFO] Loading cached data for {ticker} from {csv_path}")

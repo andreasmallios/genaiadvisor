@@ -3,7 +3,57 @@ from app.strategy_engine.rsi import rsi_signal
 from app.strategy_engine.macd import macd_signal
 from app.strategy_engine.bollinger import bollinger_band_signal
 from app.strategy_engine.stochastic import stochastic_signal
-from app.strategy_engine.ml_classifier import predict_signal
+from app.strategy_engine.ml_classifier import compute_features
+
+# Force TensorFlow to run on CPU
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"
+
+from tensorflow.keras.models import load_model
+from pathlib import Path
+import joblib
+import numpy as np
+
+from tensorflow.keras import backend as K
+import gc
+
+# Load TensorFlow model and scaler once
+MODEL_DIR = Path(__file__).resolve().parents[2] / "models"
+tf_model = load_model(MODEL_DIR / "tf_model.h5")
+scaler = joblib.load(MODEL_DIR / "scaler.pkl")
+
+
+def tensorflow_classifier_signal(df):
+    features = compute_features(df).iloc[[-1]][[
+        'SMA_10', 'SMA_50', 'SMA_diff', 'RSI', 'MACD',
+        'Return_1d', 'Return_5d', 'Return_10d', 'Volume'
+    ]]
+    X_scaled = scaler.transform(features)
+    prediction = tf_model.predict(X_scaled)
+    label = int(np.argmax(prediction)) - 1  # Convert [0,1,2] -> [-1,0,1]
+
+    # Clean up TF memory after prediction
+    K.clear_session()
+    gc.collect()
+
+    if label == 1:
+        recommendation = "BUY"
+        reason = "TensorFlow model predicts positive price movement."
+    elif label == -1:
+        recommendation = "SELL"
+        reason = "TensorFlow model predicts negative price movement."
+    else:
+        recommendation = "HOLD"
+        reason = "TensorFlow model predicts neutral price movement."
+
+    return {
+        "signal": "ML Classifier",
+        "recommendation": recommendation,
+        "reason": reason,
+        "date": str(df.index[-1].date())
+    }
+
+
 
 def generate_combined_recommendation(df, ticker):
     signals = [
@@ -12,7 +62,7 @@ def generate_combined_recommendation(df, ticker):
         macd_signal(df),
         bollinger_band_signal(df),
         stochastic_signal(df),
-        predict_signal(df)
+        tensorflow_classifier_signal(df)
     ]
 
     weights = {
@@ -33,20 +83,19 @@ def generate_combined_recommendation(df, ticker):
             score += 1 * w
         elif s["recommendation"] == "SELL":
             score -= 1 * w
-        # HOLD = 0, no score change
         total_weight += w
 
-    normalized_score = score / total_weight if total_weight > 0 else 0
+    normalised_score = score / total_weight if total_weight > 0 else 0
 
-    if normalized_score >= 0.3:
+    if normalised_score >= 0.3:
         final_recommendation = "BUY"
-        reason = f"Weighted signals support a BUY with a confidence score of {normalized_score:.2f}."
-    elif normalized_score <= -0.3:
+        reason = f"Weighted signals support a BUY with a confidence score of {normalised_score:.2f}."
+    elif normalised_score <= -0.3:
         final_recommendation = "SELL"
-        reason = f"Weighted signals support a SELL with a confidence score of {normalized_score:.2f}."
+        reason = f"Weighted signals support a SELL with a confidence score of {normalised_score:.2f}."
     else:
         final_recommendation = "HOLD"
-        reason = f"Signals are mixed; suggesting HOLD with a confidence score of {normalized_score:.2f}."
+        reason = f"Signals are mixed; suggesting HOLD with a confidence score of {normalised_score:.2f}."
 
     return {
         "ticker": ticker,
@@ -54,5 +103,5 @@ def generate_combined_recommendation(df, ticker):
         "reason": reason,
         "date": signals[0]["date"],
         "details": signals,
-        "score": normalized_score
+        "score": normalised_score
     }
