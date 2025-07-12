@@ -39,3 +39,7 @@ code/.ipynb_checkpoints/test-checkpoint.ipynb
 
 # Environment Variables and Configuration
 .env
+
+# Models
+*.pkl
+*.h5
