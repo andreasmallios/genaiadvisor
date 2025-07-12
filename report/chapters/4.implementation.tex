@@ -66,6 +66,35 @@ Behind the scenes, the app integrates tightly with the data ingestion pipeline, 
 
 Importantly, the interface includes clear disclaimers and educational prompts, ensuring compliance with ethical guidance and reinforcing the tool’s non-advisory role. Collectively, the Streamlit-based interface serves not only as a functional front-end, but also as a pedagogical instrument that demystifies algorithmic financial decision-making for non-experts.
 
+
+\subsubsection{Testing Infrastructure}
+
+To ensure reliability and maintainability throughout development, the system was structured with a comprehensive suite of unit tests using the \texttt{pytest} framework. Test-driven development (TDD) was adopted for core modules, with tests written prior to or alongside implementation.
+
+The test suite covers the following modules:
+
+\begin{itemize}
+    \item \texttt{test\_data\_ingestion.py}: Verifies correct behaviour of data retrieval and caching logic. This includes testing for file creation, timestamp parsing, index labelling, and fallback behaviour when cached data is missing or malformed.
+
+    \item \texttt{test\_strategy\_engine.py} and \texttt{test\_bollinger\_stochastic.py}: Test the technical indicator modules, including SMA, RSI, MACD, Bollinger Bands, and Stochastic Oscillator. Assertions include type validation, expected output structure, and logical consistency of BUY/SELL/HOLD signals under different market conditions.
+
+    \item \texttt{test\_explanation\_generator.py}: Ensures that the explanation generation module produces structured outputs (Summary–Reason–Action) and handles subprocess errors gracefully. Tests also confirm compliance with length and format constraints.
+
+    \item \texttt{test\_engine\_call.py}: Provides integration testing for the strategy engine's ensemble logic. It validates that weighted voting correctly aggregates signal outputs and produces deterministic recommendations under fixed conditions.
+\end{itemize}
+
+Tests were executed regularly during development. To resolve relative import issues caused by the nested package structure, the environment variable \texttt{PYTHONPATH=.} was set when invoking Pytest. This ensured consistent test discovery across all components without requiring restructuring of the project hierarchy.
+
+By maintaining tight feedback loops through unit testing, the system achieved high modular integrity and reduced the risk of regressions during iterative development.
+
+\subsubsection{Testing and Evaluation Support}
+
+To ensure the correctness and robustness of the implementation, the system was instrumented with unit tests using the \texttt{pytest} framework. Each functional module—including data ingestion, technical indicator computation, and explanation generation—was covered by dedicated tests that validated outputs against structural and semantic expectations. For instance, the SMA, RSI, MACD, Bollinger Bands, and Stochastic Oscillator modules were tested for valid signal outputs and consistent return types. The explanation generator was similarly validated to ensure that LLM-generated text adhered to format and length constraints.
+
+Beyond unit testing, an evaluation pipeline was implemented via a custom backtesting framework. Historical ticker data was sliced as of specified past dates, and the system was queried to generate time-local recommendations and explanations. These were then evaluated against forward price movements over configurable horizons (e.g., 30 days), enabling ex-post performance analysis. A batch wrapper automated this process across multiple tickers and time windows, with results persisted in timestamped CSVs for downstream analysis and visualisation in Jupyter notebooks.
+
+This combined approach—functional testing and historical simulation—ensured both implementation integrity and empirical grounding. By decoupling test targets and maintaining test coverage alongside development, the system achieved high maintainability and evaluation traceability.
+
 \subsection{Implementation Challenges}
 
 Several technical challenges emerged during implementation, each requiring targeted debugging and design intervention.
