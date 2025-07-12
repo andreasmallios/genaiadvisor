@@ -1,60 +1,92 @@
-\section{Minimum Viable Product Approach}
+\section{Implementation}
 
-In the development of the GenAI Advisor, a structured Minimum Viable Product (MVP) approach was followed to ensure systematic progress while respecting the constraints of time, computational resources, and project evaluation needs. The MVP methodology allowed for the early identification of potential technical limitations while enabling the iterative refinement of core functionalities essential to the project.
+\subsection{Overview}
 
-The MVP was designed to operate fully offline, respecting user data privacy and ensuring explainability. It integrates four layers: data ingestion, strategy engine, explanation generation, and a user-facing Streamlit interface. The initial focus was on constructing a thin, end-to-end pipeline capable of performing equity data ingestion using Yahoo Finance, caching the data locally in CSV format to avoid repeated API calls while supporting reproducibility.
+The GenAI Advisor was developed using a Minimum Viable Product (MVP) approach, structured around four modular components: data ingestion, strategy engine, explanation generation, and a Streamlit-based user interface. The system was designed to be fully offline, prioritising data privacy, transparency, and reproducibility. Initial efforts focused on building a thin end-to-end pipeline to demonstrate feasibility and guide future sprints.
 
-The strategy engine implemented a simple rule-based mechanism using a moving average crossover technique, providing structured recommendations (BUY or HOLD) alongside clear reasons based on the underlying signal. This approach balanced simplicity with interpretability, aligning with the goal of transparent, explainable AI systems suitable for retail investors.
+\subsection{System Architecture}
 
-Explanation generation was initially prototyped with placeholder explanations before being integrated with a locally hosted Mistral 8B model via Ollama, enabling offline large language model inference. This allowed for the generation of user-friendly, clear explanations for investment signals without requiring online API dependencies.
-
-A Streamlit frontend was developed to facilitate user interaction, enabling the entry of tickers, the execution of the pipeline, and the clear display of structured recommendations, explanations, and recent price charts. This immediate feedback loop supported the testing and evaluation processes, aligning with agile development practices.
-
-Pytest was configured to establish a lightweight test-driven development environment, ensuring that data ingestion, strategy engine outputs, and explanation generation remained reliable as further functionalities were layered onto the system.
-
-The MVP was then extended with a backtesting utility, enabling the analysis of recommendations against historical price movements over a defined lookahead period. A batch backtesting pipeline was constructed to systematically test multiple tickers across various dates, generating CSV outputs to support quantitative evaluation. An evaluation notebook was prepared to visualise the distribution of price movements following recommendations, allowing for the analysis of the effectiveness of the generated signals.
-
-This MVP approach ensured that a functioning, test-backed advisor system was available early in the project timeline, providing a robust foundation for evaluation and report writing, and allowing for targeted refinement and iteration in subsequent development sprints.
-
-\section{Implementation Challenges in the MVP}
-
-During the MVP development, several non-trivial challenges arose that required careful technical decisions to ensure system robustness and correctness. Firstly, handling timezone consistency was critical when implementing the backtesting pipeline. The \texttt{yfinance} library returns time series data indexed with a timezone, whereas initial cutoff dates for historical evaluations were timezone-naive, resulting in type errors during comparisons. This was resolved by explicitly localising the cutoff dates using \texttt{pd.to\_datetime().tz\_localize('America/New\_York')}, ensuring consistent and error-free slicing of historical data.
-
-Another challenge involved achieving reproducible and API-resilient data ingestion through CSV caching. Early iterations faced hidden header misalignments and unnamed indexes when saving and reloading data, which caused failures in downstream modules. This was addressed by enforcing consistent use of the \texttt{index\_label} parameter during saving and explicitly specifying \texttt{index\_col} during loading, ensuring data could be reliably reused without corruption.
-
-Integrating a local large language model explanation generator with \texttt{Ollama} also required precise engineering. Instead of using an external API, a local Mistral 8B model was leveraged to maintain offline functionality and data privacy. This necessitated the design of a robust subprocess management approach, correctly piping structured prompts and capturing outputs while handling encoding and potential model unavailability gracefully.
-
-Additionally, implementing consistent test discovery using \texttt{Pytest} required an understanding of Python's module resolution, as the project initially failed to locate modules due to the package structure. This was resolved by enforcing the use of \texttt{PYTHONPATH=.} during test execution, ensuring reliable test discovery across environments.
-
-Finally, careful attention was required in the design of the backtesting pipeline to prevent future data leakage while computing lookahead returns. Ensuring that data used to generate recommendations strictly respected the cutoff date, and accurately measuring post-recommendation price movements, was critical for the validity of the evaluation metrics used in the later stages of the project.
-
-Collectively, addressing these challenges not only ensured the stability and correctness of the GenAI Advisor MVP but also demonstrated disciplined software engineering practices that align with industry and academic expectations for reliable, reproducible systems.
-
-\section{Expansion of the MVP with Advanced Signal Architecture}
-
-Following the initial MVP construction, the GenAI Advisor was extended with a modular, advanced strategy engine architecture during the first development sprint. This refactor transitioned the single-signal SMA crossover logic into a structured multi-signal system, allowing for the integration of additional indicators including the Relative Strength Index (RSI) and the Moving Average Convergence Divergence (MACD).
-
-Each signal was implemented as an independent module within the system, supporting clean separation of concerns and enabling systematic unit testing. The RSI module detects oversold conditions, while the MACD module identifies momentum changes based on the convergence and divergence of moving averages. These signals were integrated into a combined recommendation engine that uses a voting logic approach: the system recommends a BUY signal if any of the signals indicate favourable conditions, while defaulting to HOLD otherwise. This design allows the system to leverage multiple perspectives on market conditions while maintaining transparency and interpretability.
-
-The modular structure not only facilitated the immediate extension of the strategy engine during this sprint but also positioned the system for future enhancement with additional signals or weighting schemes. Throughout this refactor, test-driven development was maintained using Pytest, ensuring the correctness of individual signals and the consistency of the combined recommendation logic.
-
-This enhancement significantly increased the system's analytical capabilities while preserving the key goals of offline operation and explainability, aligning with the broader objectives of the GenAI Advisor project.
-
-\subsection{Strategy Engine Enhancements}
-
-Building upon the Minimum Viable Product developed in Week 1, the strategy engine was expanded to include additional technical indicators to enhance the quality and diversity of signals while maintaining transparency and interpretability. 
-
-Two new signals were implemented:
-
+The overall system architecture comprises:
 \begin{itemize}
-    \item \textbf{Bollinger Bands}: A volatility-based indicator using a 20-day simple moving average (SMA) with upper and lower bands set at two standard deviations. A BUY signal is generated when the closing price crosses below the lower band, indicating potential oversold conditions and a likelihood of reversal.
-    \item \textbf{Stochastic Oscillator}: A momentum indicator utilising the \%K and \%D lines over a 14-day window. A BUY signal is triggered when the \%K line crosses above the \%D line while both are below the threshold of 20, signalling oversold conditions with potential upward momentum.
+    \item \textbf{Frontend:} Streamlit application for user interaction
+    \item \textbf{Backend:} Modular Python packages handling data ingestion, strategy evaluation, and explanation generation
+    \item \textbf{LLM Inference:} Mistral 8B model run locally via Ollama
+    \item \textbf{Testing and Evaluation:} Pytest-driven unit tests and backtesting utilities
 \end{itemize}
 
-These indicators complement the existing SMA Crossover, RSI, MACD, and the ML-based classifier, creating a hybrid strategy engine capable of generating diverse, explainable signals across trend, momentum, and volatility dimensions.
+A modular layout allowed for parallel development and easier testing of individual system components.
 
-The implementation of these signals was modular, with each signal encapsulated in a dedicated module (\texttt{bollinger.py}, \texttt{stochastic.py}) within the \texttt{strategy\_engine} folder, following the same structured dictionary return pattern as the existing signals. This consistency ensured seamless integration with the central aggregation function in \texttt{engine.py}, enabling the new signals to contribute to the hybrid voting mechanism used for recommendation generation.
+\subsection{Development Process}
 
-To maintain robustness, unit tests were created to verify that both the Bollinger Bands and Stochastic Oscillator modules returned valid recommendations (BUY or HOLD) and contained structured, interpretable outputs. These tests ensured reliability and integration readiness within the broader offline pipeline.
+An MVP-first approach guided the early stages. Agile-inspired sprints were used to iteratively add functionality and refine components. Git was used for version control, and all new modules were tested before integration. (https://github.com/andreasmallios/genaiadvisor)
 
-By expanding the strategy engine with these additional signals, the system now offers a richer set of signals while preserving explainability and reproducibility, aligning with the goals of the GenAI Advisor project to provide transparent, offline investment insights to retail investors.
+\subsection{Key Modules and Features}
+
+\subsubsection{Data Ingestion}
+Equity price data is retrieved from Yahoo Finance via the \texttt{yfinance} API, using a custom function designed to streamline data access and ensure reproducibility. The function \texttt{fetch\_ticker\_data} encapsulates logic for both online retrieval and local caching. When data for a given ticker symbol already exists in the local cache (CSV\ format), it is loaded directly using \texttt{pandas.read\_csv\(\)}, with the \texttt{Date} column parsed into a datetime index to facilitate time series analysis. This not only minimises reliance on external API calls, but also enhances the determinism of backtests.
+
+In the absence of cached data, the function instantiates a \texttt{yfinance.Ticker} object and invokes \texttt{Ticker.history()} with a default window of one year and daily frequency. Metadata fields unrelated to price analysis (e.g., \texttt{Dividends}, \texttt{Stock Splits}) are explicitly excluded to avoid downstream noise. The retrieved data frame is then persisted locally to disk, ensuring future runs use identical input data unless manually refreshed.
+
+All data is indexed by date, with explicit naming of the index to \texttt{Date} for consistency across modules. Additionally, the local directory used for caching is dynamically resolved using Python’s \texttt{os.path} utilities, enabling portability across environments. Although not shown directly in the function, timezone consistency is enforced at the point of usage through \texttt{tz\_localize}, ensuring temporal coherence across the ingestion and backtesting pipeline.
+
+\subsubsection{Strategy Engine}
+
+The strategy engine was originally implemented using a simple moving average (SMA) crossover, a well-known momentum indicator. However, it was later modularised and extended into a hybrid ensemble system, integrating both traditional technical indicators and machine learning predictions. Each strategy component was abstracted into its own module with a shared interface returning a \texttt{recommendation}, \texttt{reason}, and \texttt{date}, thereby enabling flexible composition and detailed introspection.
+
+The indicators implemented include SMA crossover, Relative Strength Index (RSI), Moving Average Convergence Divergence (MACD), Bollinger Bands, and the Stochastic Oscillator. Each module performs well-defined signal computation:
+\begin{itemize}
+\item \textbf{SMA crossover}: Computes short- and long-term SMAs (50-day and 200-day by default) and identifies bullish or bearish crossovers as trading signals.
+\item \textbf{RSI}: Quantifies momentum and detects overbought or oversold regimes, issuing BUY signals when RSI falls below 30 and SELL when above 70.
+\item \textbf{MACD}: Uses exponential moving averages to detect momentum shifts via signal-line crossovers.
+\item \textbf{Bollinger Bands}: Employs a 20-day SMA and standard deviation bands to detect volatility-based breakouts.
+\item \textbf{Stochastic Oscillator}: Evaluates recent closing prices relative to the high-low range over a rolling window to spot potential reversals.
+\end{itemize}
+
+Additionally, a supervised machine learning layer was incorporated using both Random Forest and Logistic Regression classifiers. These were trained on historical technical features, including SMA differentials, RSI, MACD, returns, and volume, with future returns used as labels. Predictions from both models are aggregated and translated into BUY, HOLD, or SELL signals.
+
+All individual signals are passed to a meta-layer defined in \texttt{engine.py}, where a weighted voting mechanism combines the recommendations. Each strategy is assigned a normalised weight, and the aggregate score is computed to produce the final advisory signal. A confidence score is also generated, which allows the user to assess the strength of the consensus recommendation.
+
+This modular and explainable architecture enhances the system’s adaptability, allowing future indicators or models to be integrated with minimal changes to the existing pipeline.
+
+\subsubsection{Explanation Generator}
+
+To enhance transparency and user trust, the system includes a natural language explanation generator powered by a locally hosted instance of the Mistral 8B model, served via Ollama. This design deliberately avoids reliance on proprietary cloud APIs, enabling offline inference and preserving data privacy. Communication with the model is facilitated through Python’s \texttt{subprocess} module, which programmatically invokes the model via command-line interface.
+
+Prompts are dynamically constructed using the metadata associated with each final recommendation. The resulting prompt embeds a structured format with three components: \textit{Summary}, \textit{Reason}, and \textit{Action}. These guide the model to produce consistent, human-readable rationales tailored for non-specialist audiences. The prompt instructs the model to contextualise signals such as SMA crossover, RSI, MACD, Bollinger Bands, Stochastic Oscillator, and ML Classifier outputs. It also emphasises educational tone, British English, and a strict 300-word limit to maintain clarity and concision.
+
+By embedding these constraints in the prompt and invoking the model locally, the system achieves explainability without introducing dependencies that compromise reproducibility or user autonomy. Errors in generation are handled gracefully, returning informative fallback messages to aid debugging.
+
+\subsubsection{Interface}
+
+The user interface is developed using Streamlit, a Python-based rapid application framework tailored for data-centric interfaces. This decision facilitated fast prototyping and interactive visualisation, crucial during iterative development and debugging. The application enables users to input stock tickers, retrieve historical market data, view system-generated BUY, HOLD, or SELL recommendations, and inspect the rationale behind each decision.
+
+The main interface consists of two parts: a portfolio overview and a detailed ticker analysis. The portfolio table displays summarised recommendations for all tickers within the watchlist, fetched from a CSV file. For deeper inspection, users may select a specific ticker, upon which the interface renders price history, a modular signal breakdown, and a natural language explanation. This layered interaction supports transparency and interpretability.
+
+Behind the scenes, the app integrates tightly with the data ingestion pipeline, strategy engine, and explanation generator. Recommendations and signal details are fetched dynamically and rendered as structured text. Visual aids, such as historical closing price charts, are plotted using \texttt{matplotlib} and embedded into both the interface and downloadable PDF reports. This PDF generation, facilitated by the \texttt{fpdf} library, enables offline review and archiving.
+
+Importantly, the interface includes clear disclaimers and educational prompts, ensuring compliance with ethical guidance and reinforcing the tool’s non-advisory role. Collectively, the Streamlit-based interface serves not only as a functional front-end, but also as a pedagogical instrument that demystifies algorithmic financial decision-making for non-experts.
+
+\subsection{Implementation Challenges}
+
+Several technical challenges emerged during implementation, each requiring targeted debugging and design intervention.
+
+\begin{itemize}
+
+\item \textbf{Timezone mismatch:}\\
+Historical price data retrieved via Yahoo Finance lacked explicit timezone metadata, which introduced ambiguity when slicing datasets for backtesting. This was particularly problematic when aligning cut-off dates across modules. To mitigate this, all datetime indices were explicitly localised to the \texttt{America/New\_York} timezone using the \texttt{tz\_localize} method. This normalisation ensured consistent interpretation of trading days and eliminated subtle off-by-one errors during data slicing.
+
+\item \textbf{CSV integrity:}
+Cached datasets were initially stored as CSV files to improve reproducibility and reduce API reliance. However, inconsistencies in how indices were handled during \texttt{to\_csv()} and \texttt{read\_csv()} operations led to misaligned time series and malformed DataFrames. This was addressed by explicitly setting the \texttt{index\_label} parameter during write operations and enforcing \texttt{index\_col="Date"} with \texttt{parse\_dates=True} during reads. These changes ensured referential consistency across modules and safeguarded downstream processing.
+
+\item \textbf{Subprocess inference:}
+Local model inference via the \texttt{ollama} CLI introduced challenges in handling prompt formatting, encoding, and subprocess errors. The prompt had to be programmatically composed with structured constraints while maintaining compatibility with standard input streams. Errors during model invocation (e.g., non-zero return codes) were caught and reported via Python’s \texttt{subprocess.CalledProcessError} exception handling, allowing the interface to degrade gracefully with informative fallback messages.
+
+\item \textbf{Test discovery:}
+During unit test integration, Pytest failed to resolve relative imports due to the project’s nested directory structure. This was resolved by invoking Pytest with the environment variable \texttt{PYTHONPATH=.}, thereby ensuring that all modules were discoverable relative to the project root. This solution avoided the need for path rewrites or package restructuring.
+
+\item \textbf{Backtesting leakage:}
+Initial backtest prototypes inadvertently included post-cutoff data in model inputs, leading to optimistic and invalid evaluations. This was corrected by enforcing a strict temporal cutoff: recommendations were generated using only data up to the target date, while subsequent price movements were isolated for outcome analysis. This approach ensured methodological rigour and prevented data leakage, a critical consideration in empirical evaluation.
+
+\end{itemize}
+
+These challenges highlight the complexity of integrating financial data pipelines, local LLM inference, and modular testing in a cohesive system. Their resolution contributed directly to the robustness and reproducibility of the final implementation.

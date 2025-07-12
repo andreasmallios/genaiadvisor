@@ -1,4 +1,4 @@
-\section{Evaluation of the Extended MVP}
+\section{Evaluation}
 
 Following the successful construction of the initial MVP, a systematic evaluation was carried out to assess the correctness, reliability, and effectiveness of the GenAI Advisor as advanced features were layered onto the system.
 
@@ -11,3 +11,11 @@ To evaluate the practical performance of the recommendation signals, a batch bac
 An evaluation notebook was prepared using Jupyter, processing these CSV outputs to visualise the distribution of price movements following the system's recommendations and to analyse the effectiveness of each signal type in isolation and in combination. Plots such as histograms and boxplots were generated to illustrate the distribution of returns following recommendations, and initial quantitative metrics were computed, such as the proportion of BUY signals that resulted in positive returns.
 
 These evaluation steps ensured that the extended MVP did not introduce regressions while adding advanced functionality and that it continued to align with the goals of interpretability, offline operation, and explainability. The evaluation process also provided data-driven evidence to support further refinement of signal thresholds, signal weighting, and prompt engineering for explanation generation in subsequent development sprints.
+
+\subsubsection{Testing and Evaluation Support}
+
+To ensure the correctness and robustness of the implementation, the system was instrumented with unit tests using the \texttt{pytest} framework. Each functional module—including data ingestion, technical indicator computation, and explanation generation—was covered by dedicated tests that validated outputs against structural and semantic expectations. For instance, the SMA, RSI, MACD, Bollinger Bands, and Stochastic Oscillator modules were tested for valid signal outputs and consistent return types. The explanation generator was similarly validated to ensure that LLM-generated text adhered to format and length constraints.
+
+Beyond unit testing, an evaluation pipeline was implemented via a custom backtesting framework. Historical ticker data was sliced as of specified past dates, and the system was queried to generate time-local recommendations and explanations. These were then evaluated against forward price movements over configurable horizons (e.g., 30 days), enabling ex-post performance analysis. A batch wrapper automated this process across multiple tickers and time windows, with results persisted in timestamped CSVs for downstream analysis and visualisation in Jupyter notebooks.
+
+This combined approach—functional testing and historical simulation—ensured both implementation integrity and empirical grounding. By decoupling test targets and maintaining test coverage alongside development, the system achieved high maintainability and evaluation traceability.
