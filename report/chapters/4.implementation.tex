@@ -1,4 +1,4 @@
-\section{Implementation}
+\section{Implementation (2399/2500 words)}
 
 \subsection{Overview}
 
@@ -14,11 +14,11 @@ The overall system architecture comprises:
     \item \textbf{Testing and Evaluation:} Pytest-driven unit tests and backtesting utilities
 \end{itemize}
 
-A modular layout allowed for parallel development and easier testing of individual system components.
+A modular layout allowed for parallel development and easier testing of individual system components. All source code and evaluation assets are available at \url{https://github.com/andreasmallios/genaiadvisor}, ensuring transparency, reproducibility, and compliance with open-source principles.
 
 \subsection{Development Process}
 
-An MVP-first approach guided the early stages. Agile-inspired sprints were used to iteratively add functionality and refine components. Git was used for version control, and all new modules were tested before integration. (https://github.com/andreasmallios/genaiadvisor)
+An MVP-first approach guided the early stages. Agile-inspired sprints were used to iteratively add functionality and refine components. Git was used for version control, with feature branches for modular additions and frequent integration testing.
 
 \subsection{Key Modules and Features}
 
@@ -48,52 +48,105 @@ All individual signals are passed to a meta-layer defined in \texttt{engine.py},
 
 This modular and explainable architecture enhances the system’s adaptability, allowing future indicators or models to be integrated with minimal changes to the existing pipeline.
 
+\subsubsection{ML Implementation}
+
+The machine learning component of the GenAI Advisor transitioned from baseline \texttt{scikit-learn} classifiers to a TensorFlow-based neural network to improve predictive performance while remaining fully auditable. Initial iterations used Random Forest and Logistic Regression to establish a benchmark, leveraging engineered features such as SMA differentials, RSI, MACD, returns, and volumes. Models and scalers were persisted to the \texttt{models/} directory to ensure reproducibility.
+
+The final implementation employs a feedforward neural network built with TensorFlow/Keras, trained on combined historical data across all supported tickers. The network comprises two hidden layers (64 and 32 units) with ReLU activations, dropout regularisation, and a softmax output for three classes (BUY, HOLD, SELL). Labels were derived from forward ten-day price movements, with class weighting applied to mitigate label imbalance. Early stopping was used to prevent overfitting, and both the trained model (\texttt{tf\_model.h5}) and scaler were cached for inference.
+
+This classifier is invoked within the \texttt{engine.py} pipeline via the \texttt{tensorflow\_classifier\_signal} function and integrated into the weighted ensemble in \texttt{generate\_combined\_recommendation}. Here, its output complements rule-based signals (e.g., SMA, RSI, MACD) under a defined weighting scheme. This design retains transparency by exposing model-driven rationales alongside deterministic indicators, aligning predictive improvements with the project's explainability objectives.
+
+For inference, TensorFlow was explicitly configured to run on the CPU (\texttt{CUDA\_VISIBLE\_DEVICES=-1}) to avoid contention with the Mistral LLM, which occupies the GPU for explanation generation. Early experiments revealed that concurrent GPU usage by both TensorFlow and Mistral frequently exhausted available VRAM, causing inference failures. Running TensorFlow on the CPU mitigated these conflicts while maintaining acceptable latency for individual predictions. Although training was GPU-accelerated for efficiency, this CPU-only inference design aligns with the offline-first architecture and ensures stable operation on hardware-constrained environments without compromising model availability or reproducibility during backtesting and interactive usage.
+
 \subsubsection{Explanation Generator}
 
 To enhance transparency and user trust, the system includes a natural language explanation generator powered by a locally hosted instance of the Mistral 8B model, served via Ollama. This design deliberately avoids reliance on proprietary cloud APIs, enabling offline inference and preserving data privacy. Communication with the model is facilitated through Python’s \texttt{subprocess} module, which programmatically invokes the model via command-line interface.
 
-Prompts are dynamically constructed using the metadata associated with each final recommendation. The resulting prompt embeds a structured format with three components: \textit{Summary}, \textit{Reason}, and \textit{Action}. These guide the model to produce consistent, human-readable rationales tailored for non-specialist audiences. The prompt instructs the model to contextualise signals such as SMA crossover, RSI, MACD, Bollinger Bands, Stochastic Oscillator, and ML Classifier outputs. It also emphasises educational tone, British English, and a strict 300-word limit to maintain clarity and concision.
+Prompts are dynamically constructed using the metadata associated with each final recommendation. The resulting prompt embeds a structured format with three components: \textit{Summary}, \textit{Reason}, and \textit{Disclaimer}. These guide the model to produce consistent, human-readable rationales tailored for non-specialist audiences. The prompt instructs the model to contextualise signals such as SMA crossover, RSI, MACD, Bollinger Bands, Stochastic Oscillator, and ML Classifier outputs. It also emphasises educational tone, British English, and a strict 300-word limit to maintain clarity and concision.
 
 By embedding these constraints in the prompt and invoking the model locally, the system achieves explainability without introducing dependencies that compromise reproducibility or user autonomy. Errors in generation are handled gracefully, returning informative fallback messages to aid debugging.
 
 \subsubsection{Interface}
 
-The user interface is developed using Streamlit, a Python-based rapid application framework tailored for data-centric interfaces. This decision facilitated fast prototyping and interactive visualisation, crucial during iterative development and debugging. The application enables users to input stock tickers, retrieve historical market data, view system-generated BUY, HOLD, or SELL recommendations, and inspect the rationale behind each decision.
+The user interface is developed using Streamlit, a Python-based rapid application framework tailored for data-centric interfaces. Streamlit was chosen over alternatives such as Flask or Dash due to its simplicity and tight integration with Python’s data stack, enabling rapid iteration.This decision facilitated fast prototyping and interactive visualisation, crucial during iterative development and debugging. The application enables users to input stock tickers, retrieve historical market data, view system-generated BUY, HOLD, or SELL recommendations, and inspect the rationale behind each decision.
 
-The main interface consists of two parts: a portfolio overview and a detailed ticker analysis. The portfolio table displays summarised recommendations for all tickers within the watchlist, fetched from a CSV file. For deeper inspection, users may select a specific ticker, upon which the interface renders price history, a modular signal breakdown, and a natural language explanation. This layered interaction supports transparency and interpretability.
+The main interface consists of two parts: a portfolio overview and a detailed ticker analysis. The portfolio table displays summarised recommendations for all tickers within the watchlist, fetched from a CSV file. 
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{assets/ui1-portfolio_overview.png}
+    \caption{\small Portfolio overview, showing entire portfolio and recommendations.}
+    \label{fig:ui-portfolio-overview}
+\end{figure}
+
+For deeper inspection, users may select a specific ticker, upon which the interface renders price history, a modular signal breakdown, and a natural language explanation. This layered interaction supports transparency and interpretability.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.9\textwidth]{assets/ui2-ticker_analysis.png}
+    \caption{\small Ticker-level analysis view, showing historical price, technical signals, and explanation.}
+    \label{fig:ui-ticker-analysis}
+\end{figure}
 
 Behind the scenes, the app integrates tightly with the data ingestion pipeline, strategy engine, and explanation generator. Recommendations and signal details are fetched dynamically and rendered as structured text. Visual aids, such as historical closing price charts, are plotted using \texttt{matplotlib} and embedded into both the interface and downloadable PDF reports. This PDF generation, facilitated by the \texttt{fpdf} library, enables offline review and archiving.
 
 Importantly, the interface includes clear disclaimers and educational prompts, ensuring compliance with ethical guidance and reinforcing the tool’s non-advisory role. Collectively, the Streamlit-based interface serves not only as a functional front-end, but also as a pedagogical instrument that demystifies algorithmic financial decision-making for non-experts.
 
 
-\subsubsection{Testing Infrastructure}
+\subsubsection{Testing Infrastructure and Evaluation Support}
 
-To ensure reliability and maintainability throughout development, the system was structured with a comprehensive suite of unit tests using the \texttt{pytest} framework. Test-driven development (TDD) was adopted for core modules, with tests written prior to or alongside implementation.
+Reliability was enforced through a comprehensive \texttt{pytest} suite following Test-Driven Development (TDD) principles. Core modules—including data ingestion, technical indicators (SMA, RSI, MACD, Bollinger Bands, Stochastic Oscillator), ensemble logic, and explanation generation—were covered by dedicated tests validating type integrity, output structure, and signal consistency across edge cases.
 
-The test suite covers the following modules:
+Integration tests (\texttt{test\_engine\_call.py}) confirmed correct aggregation of weighted strategies into deterministic recommendations. The explanation generator was tested for compliance with its Summary–Reason–Disclaimer format and for robustness against subprocess errors. Pytest was executed with \texttt{PYTHONPATH=.} to resolve imports in the nested project structure.
+
+Complementing unit testing, a batch backtesting framework replays strategy outputs against historical data, comparing predictions to forward price movements over configurable horizons (e.g., 30 days). Metrics such as hit rate, Sharpe ratio, and maximum drawdown were computed, with results logged to timestamped CSVs for notebook-based visualisation and further analysis. This dual approach—functional testing and historical simulation—ensured both software integrity and empirical grounding.
+
+\subsubsection{Backtesting Support}
+
+Backtesting validated the economic viability of recommendations under realistic market conditions. Using cached historical data, the system generated time-local recommendations which were benchmarked against subsequent price performance. Performance metrics included cumulative return, Sharpe ratio, maximum drawdown, and confusion matrix-derived classification accuracy.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.65\textwidth]{assets/confusion_matrix.png}
+    \caption{\small Confusion matrix of classifier predictions versus observed outcomes during evaluation.}
+    \label{fig:confusion-matrix}
+\end{figure}
+
+This evaluation pipeline provided reproducible, timestamped results consistent with algorithmic trading validation best practices~\cite{bailey2014backtest}.
+
+\subsubsection{Logging and Monitoring}
+
+Execution logging was implemented using a lightweight CSV-based approach via \texttt{logger.py}. Each interaction, including ticker requests, generated recommendations, and explanation invocations, was appended to \texttt{logs/usage\_log.csv}. This file records timestamps, user inputs, and resulting signals, enabling both auditability and post-hoc debugging. During development, these logs were instrumental in diagnosing runtime errors and tracing data flow across modules. For example, discrepancies between model predictions and ensemble outputs were reconciled by cross-referencing log timestamps with feature generation events. This persistent logging mechanism also facilitated informal monitoring of system behaviour during backtesting and exploratory testing, thereby supporting reproducibility and transparency without requiring external monitoring frameworks.
+
+\subsection{Environment and Dependency Management}
+
+A Conda-based environment was used to manage dependencies and ensure reproducibility across different development machines. All required packages, including \texttt{pandas}, \texttt{yfinance}, \texttt{tensorflow}, \texttt{scikit-learn}, and \texttt{streamlit}, were defined within a single \texttt{requirements.yml} file stored at the repository root. This configuration allowed the environment to be recreated deterministically with a single command. Pinning library versions reduced the risk of incompatibilities during integration or evaluation. The approach also simplified transitions between CPU-only and GPU-enabled environments, particularly relevant for TensorFlow training versus inference runs, where GPU acceleration was explicitly disabled for deterministic CPU-bound predictions. This standardised environment setup was crucial for aligning development, testing, and report reproduction in an offline-first context.
+
+\subsection{Code Structure and Repository Organisation}
+
+The repository is divided into two primary components: the \texttt{code/} directory, which contains the full implementation of the GenAI Advisor, and the \texttt{report/} directory, which holds the dissertation source files.
 
 \begin{itemize}
-    \item \texttt{test\_data\_ingestion.py}: Verifies correct behaviour of data retrieval and caching logic. This includes testing for file creation, timestamp parsing, index labelling, and fallback behaviour when cached data is missing or malformed.
-
-    \item \texttt{test\_strategy\_engine.py} and \texttt{test\_bollinger\_stochastic.py}: Test the technical indicator modules, including SMA, RSI, MACD, Bollinger Bands, and Stochastic Oscillator. Assertions include type validation, expected output structure, and logical consistency of BUY/SELL/HOLD signals under different market conditions.
-
-    \item \texttt{test\_explanation\_generator.py}: Ensures that the explanation generation module produces structured outputs (Summary–Reason–Action) and handles subprocess errors gracefully. Tests also confirm compliance with length and format constraints.
-
-    \item \texttt{test\_engine\_call.py}: Provides integration testing for the strategy engine's ensemble logic. It validates that weighted voting correctly aggregates signal outputs and produces deterministic recommendations under fixed conditions.
+    \item \textbf{\texttt{code/}}: Implements the system, organised into:
+    \begin{itemize}
+        \item \texttt{app/} – Core application logic, including data ingestion, strategy engine, explanation generator, and supporting utilities.
+        \item \texttt{data/} – Cached market data (CSV format) for reproducibility.
+        \item \texttt{models/} – Trained machine learning models and scalers.
+        \item \texttt{evaluation/} – Backtesting outputs and results.
+        \item \texttt{logs/} – Usage logs generated during execution.
+        \item \texttt{tests/} – Pytest suites aligned with application modules.
+        \item \texttt{notebooks/} – Prototyping and exploratory analysis in Jupyter.
+        \item \texttt{streamlit\_app/} – User interface built in Streamlit.
+    \end{itemize}
+    \item \textbf{\texttt{report/}}: Contains the dissertation materials:
+    \begin{itemize}
+        \item Chapter-wise \texttt{.tex} files and the bibliography.
+        \item Figures and visualisations in \texttt{assets/}.
+        \item Compiled \texttt{main.pdf} and LaTeX build artefacts.
+    \end{itemize}
 \end{itemize}
 
-Tests were executed regularly during development. To resolve relative import issues caused by the nested package structure, the environment variable \texttt{PYTHONPATH=.} was set when invoking Pytest. This ensured consistent test discovery across all components without requiring restructuring of the project hierarchy.
-
-By maintaining tight feedback loops through unit testing, the system achieved high modular integrity and reduced the risk of regressions during iterative development.
-
-\subsubsection{Testing and Evaluation Support}
-
-To ensure the correctness and robustness of the implementation, the system was instrumented with unit tests using the \texttt{pytest} framework. Each functional module—including data ingestion, technical indicator computation, and explanation generation—was covered by dedicated tests that validated outputs against structural and semantic expectations. For instance, the SMA, RSI, MACD, Bollinger Bands, and Stochastic Oscillator modules were tested for valid signal outputs and consistent return types. The explanation generator was similarly validated to ensure that LLM-generated text adhered to format and length constraints.
-
-Beyond unit testing, an evaluation pipeline was implemented via a custom backtesting framework. Historical ticker data was sliced as of specified past dates, and the system was queried to generate time-local recommendations and explanations. These were then evaluated against forward price movements over configurable horizons (e.g., 30 days), enabling ex-post performance analysis. A batch wrapper automated this process across multiple tickers and time windows, with results persisted in timestamped CSVs for downstream analysis and visualisation in Jupyter notebooks.
-
-This combined approach—functional testing and historical simulation—ensured both implementation integrity and empirical grounding. By decoupling test targets and maintaining test coverage alongside development, the system achieved high maintainability and evaluation traceability.
+This structure separates implementation from documentation while maintaining cohesion within each domain, enabling systematic development and transparent academic reporting.
 
 \subsection{Implementation Challenges}
 
@@ -119,3 +172,6 @@ Initial backtest prototypes inadvertently included post-cutoff data in model inp
 \end{itemize}
 
 These challenges highlight the complexity of integrating financial data pipelines, local LLM inference, and modular testing in a cohesive system. Their resolution contributed directly to the robustness and reproducibility of the final implementation.
+
+\subsection{Summary}
+This implementation unites modular financial analytics, XAI-driven explanations, and reproducible evaluation workflows in a single offline system. By adhering to robust software engineering practices, leveraging open-source tooling, and prioritising explainability, the GenAI Advisor achieves technical depth, transparency, and educational value suitable for retail investor contexts.

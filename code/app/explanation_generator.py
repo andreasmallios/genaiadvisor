@@ -4,17 +4,6 @@ def generate_explanation(recommendation: dict) -> str:
     """
     Generate an explanation using local 'ollama run mistral' CLI call.
     """
-
-    # prompt = f"""
-    #     You are GenAI Advisor, an educational investment explanation generator.
-
-    #     Generate a clear, structured explanation in under 200 words using this format:
-    #     1. **Summary:** One sentence on the recommendation (BUY/HOLD) and {recommendation.get('ticker', '')}.
-    #     2. **Reason:** One sentence summarising the key signal(s): {recommendation.get('reason', '')}.
-    #     3. **Action:** One sentence clarifying that this is for educational purposes and not financial advice.
-
-    #     Use British English.
-    #     """
     
     prompt = f"""
         You are GenAI Advisor, an educational investment explanation generator.

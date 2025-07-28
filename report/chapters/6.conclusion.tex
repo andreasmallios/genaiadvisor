@@ -1,16 +1,55 @@
-\section{Conclusion}
+\section{Conclusion (990/1000 words)}
 
 \subsection{Summary}
-The implemented system constitutes a functional Minimum Viable Product (MVP) that integrates data ingestion, technical signal computation, ensemble logic, and explainable recommendation generation through a cohesive interface. This modular architecture facilitated rapid prototyping, iterative evaluation, and extensibility across system components. The ability to trace recommendations back to interpretable signals and test outputs in a reproducible manner established a strong foundation for further development.
 
-\subsection{Future work}
-Future work is centred around improving the system’s expressiveness, adaptivity, and user experience:
+This project has presented the design, implementation, and evaluation of the \textit{GenAI Advisor}, an offline-first, explainable financial advisory prototype integrating machine learning-driven signal generation, modular technical analysis, and natural language explanations. Through an iterative, MVP-oriented development process, the system evolved from a single-indicator proof of concept into a hybrid ensemble framework combining rule-based heuristics and a TensorFlow-based classifier, coupled with a locally hosted language model for explanation generation.
 
-\begin{itemize}
-\item \textbf{Migration to SQL:} Although CSV files were used for data storage in this implementation due to their simplicity and transparency, migrating to a structured relational database like MariaDB would be a natural evolution. This would improve scalability, allow for more complex queries, and enable multi-user support. Given the educational and offline-first objectives of this version, database integration was deferred and is proposed as future work.
-\item \textbf{User interface improvements:} While the Streamlit interface effectively demonstrates system functionality, future UI enhancements will focus on interactivity and visual storytelling. This includes time-series overlays for each signal, interactive sliders to simulate portfolio scenarios, and user-driven feedback loops. Richer visualisations will also support educational transparency, a core design objective of the tool.
-\item \textbf{Explanation pipeline enhancements:} Current prompts to the local language model are stateless. Incorporating context-aware memory—such as dialogue history, prior user queries, or preference metadata—would allow for more personalised and coherent multi-turn explanations. This may involve integrating a lightweight memory layer or using conversation-aware prompt templates to simulate state retention.
-\item \textbf{Empirical signal weighting:} The existing strategy engine applies fixed weights to each indicator. However, not all signals contribute equally to predictive accuracy across assets or timeframes. Future iterations will incorporate a data-driven signal weighting mechanism, potentially via logistic regression or Bayesian optimisation, based on historical backtest performance. This would enable adaptive ensemble construction and improved recommendation fidelity.
-\end{itemize}
+Key achievements include the successful integration of reproducible data ingestion pipelines, a modular strategy engine extensible to future indicators, and a user-facing interface capable of delivering interpretable recommendations in a pedagogically oriented format. Evaluation demonstrated that the system performed competently in predicting neutral (HOLD) conditions and moderately in directional classification (BUY/SELL), while maintaining a strong emphasis on transparency through feature-level interpretability (via SHAP) and structured language model explanations.
 
-Collectively, these planned developments aim to deepen the system’s interpretability, robustness, and real-world decision support potential—particularly for novice retail investors seeking algorithmic guidance that is both transparent and context-sensitive.
+Crucially, the work addresses three interconnected challenges inherent in the deployment of algorithmic decision support for retail investors: \textit{(i)} ensuring reproducibility and determinism in financial data processing, \textit{(ii)} demystifying machine learning outputs through human-centred explanation design, and \textit{(iii)} balancing model-driven predictions with educational transparency to mitigate over-reliance on automated signals. The system’s offline-first architecture, grounded in open-source tooling and lightweight dependency management, further supports these aims by reducing infrastructural complexity and enhancing auditability.
+
+Collectively, this research demonstrates that explainable AI (XAI) and local LLM inference can be effectively combined in a single framework for educational financial decision support, laying the groundwork for future applications at the intersection of retail investing and responsible algorithmic transparency.
+
+\subsection{Reflection on Contributions}
+
+The contributions of this project can be summarised across three dimensions:
+
+\begin{enumerate}
+\item \textbf{Technical integration:} The system combines modular financial indicators, an ML classifier, and an LLM-driven explanation layer in a cohesive, end-to-end workflow. The architecture emphasises reproducibility, portability, and offline operation, distinguishing it from conventional API-reliant fintech prototypes.
+\item \textbf{Explainability and transparency:} By pairing post hoc interpretability (SHAP) with prompt-engineered natural language explanations, the project situates interpretability as a first-class objective rather than a retrospective add-on. This dual approach - quantitative and narrative - supports both expert and novice understanding of model outputs.
+\item \textbf{Evaluation methodology:} The development of a cut-off based backtesting framework provided a robust mechanism for temporal validation and reproducible benchmarking of signal performance. The manual rubric for explanation evaluation offers a replicable template for assessing LLM-generated financial narratives.
+\end{enumerate}
+
+These elements collectively position the GenAI Advisor as both a functional prototype and a methodological case study in combining XAI, local inference, and financial signal generation under constrained, reproducible conditions.
+
+\subsection{Future Work}
+
+While the current implementation delivers a functional MVP, several avenues exist for extending its technical depth, empirical robustness, and user-facing capabilities:
+
+\paragraph{1. Migration to SQL-based storage.}
+Data storage currently relies on CSV files for their simplicity and transparency. While sufficient for a single-user, offline MVP, future versions could benefit from migration to a relational database system (e.g., MariaDB or PostgreSQL). This would improve query efficiency, enable concurrent multi-user access, and allow integration with broader portfolio tracking functionality. Structured storage would also support richer metadata—such as per-ticker feature attributions or backtesting statistics—facilitating advanced querying and visualisation.
+
+\paragraph{2. Data diversification and temporal modelling.}
+The model is presently trained on a limited set of technology-focused equities using fixed daily frequencies and a 10-day forecast horizon. Expanding coverage to multi-sector equities, alternative geographies, and higher-frequency intraday data could improve generalisability. Furthermore, temporal models such as LSTMs or Transformers could be explored to capture sequential dependencies beyond fixed-window features, potentially enhancing BUY/SELL recall rates observed during evaluation.
+
+\paragraph{3. Empirical signal weighting and adaptive ensembles.}
+The ensemble strategy currently uses fixed, heuristic weights for signal aggregation. A data-driven weighting mechanism—optimised via historical performance metrics or Bayesian updating—could dynamically reallocate weights across indicators as market conditions evolve. Such adaptivity may reduce the over-representation of HOLD signals and increase responsiveness to trend inflections.
+
+\paragraph{4. Enhanced explanation fidelity.}
+While SHAP values provide feature-level insight and LLM-generated explanations contextualise these signals for end-users, future iterations could explicitly integrate SHAP outputs into the prompt construction pipeline. This would ensure tighter alignment between model mechanics and generated narratives, reducing the risk of overgeneralised or ungrounded explanations.
+
+\paragraph{5. Improved frontend interactivity.}
+The Streamlit-based interface could be expanded to include interactive signal overlays, portfolio simulation tools (e.g., scenario analysis sliders), and drill-down visualisations for SHAP feature contributions. Mobile responsiveness and session persistence would further enhance usability, especially for non-technical users.
+
+\paragraph{6. Live deployment and paper trading integration.}
+Backtesting, while necessary for offline validation, cannot fully account for transaction costs, slippage, or real-time data constraints. Future work will involve integrating with paper trading APIs (e.g., Alpaca) to simulate live execution under realistic market latency. Such an extension would bridge the gap between retrospective evaluation and practical deployability.
+
+\subsection{Concluding Remarks}
+
+This research underscores the viability of uniting machine learning, explainable AI, and generative language models within an offline, reproducible framework for financial education and decision support. The GenAI Advisor not only operationalises these technologies in a technically rigorous manner but also situates them within an ethical and pedagogical lens, emphasising transparency, reproducibility, and user autonomy.
+
+By providing a modular, extensible foundation, this work offers both a functional prototype and a springboard for future research. Subsequent iterations can build upon this groundwork to incorporate adaptive weighting, richer temporal modelling, and live market testing. Crucially, the dual emphasis on performance and interpretability ensures that such progress does not come at the cost of user trust or responsible usage.
+
+In sum, the project delivers a credible proof of concept for explainable, AI-driven financial signal generation in an offline-first context, demonstrating both immediate educational utility and long-term potential for responsible innovation in algorithmic advisory systems. Future work will focus on scaling this foundation to more diverse markets, more sophisticated architectures, and more user-tailored interfaces, advancing the broader goal of demystifying machine learning in retail finance.
+
+Overall, this project demonstrates that combining modular technical analysis, machine learning-driven prediction, and local language model explanations within an offline-first architecture is both technically feasible and educationally valuable. The GenAI Advisor offers a reproducible, transparent prototype that balances predictive capability with interpretability, addressing common trust deficits in algorithmic financial tools, and laying a foundation for future research into adaptive, responsible, and user-centred financial decision support systems.

@@ -7,6 +7,10 @@
 
 This tool is for educational purposes only and does not constitute financial advice. Always consult a qualified financial advisor before making investment decisions.
 
+## Contribution
+
+This work contributes a reproducible, offline-first financial advisory prototype that unites modular technical analysis, machine learning prediction, and explainable AI, demonstrating a transparent and interpretable approach to retail investment decision support.
+
 ## Overview
 
 GenAI Advisor is a powerful educational tool designed to assist retail investors by providing an AI-powered investment analysis pipeline. It fetches equity data from Yahoo Finance, analyzes it using a hybrid **rule-based and ML-enhanced strategy engine**, generates **clear LLM explanations (Ollama Mistral)**, and presents results in an intuitive **Streamlit dashboard** for privacy-preserving, offline investment analysis.
