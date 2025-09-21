@@ -70,7 +70,7 @@ By embedding these constraints in the prompt and invoking the model locally, the
 
 The user interface is developed using Streamlit, a Python-based rapid application framework tailored for data-centric interfaces. Streamlit was chosen over alternatives such as Flask or Dash due to its simplicity and tight integration with Python’s data stack, enabling rapid iteration.This decision facilitated fast prototyping and interactive visualisation, crucial during iterative development and debugging. The application enables users to input stock tickers, retrieve historical market data, view system-generated BUY, HOLD, or SELL recommendations, and inspect the rationale behind each decision.
 
-The main interface consists of two parts: a portfolio overview and a detailed ticker analysis. The portfolio table displays summarised recommendations for all tickers within the watchlist, fetched from a CSV file. 
+The main interface consists of two parts: a portfolio overview and a detailed ticker analysis. The portfolio table displays summarised recommendations for all tickers within the watchlist. 
 
 \begin{figure}[ht]
     \centering
@@ -88,7 +88,7 @@ For deeper inspection, users may select a specific ticker, upon which the interf
     \label{fig:ui-ticker-analysis}
 \end{figure}
 
-Behind the scenes, the app integrates tightly with the data ingestion pipeline, strategy engine, and explanation generator. Recommendations and signal details are fetched dynamically and rendered as structured text. Visual aids, such as historical closing price charts, are plotted using \texttt{matplotlib} and embedded into both the interface and downloadable PDF reports. This PDF generation, facilitated by the \texttt{fpdf} library, enables offline review and archiving.
+Behind the scenes, the app integrates tightly with the data ingestion pipeline, database, strategy engine, and explanation generator. Recommendations and signal details are fetched dynamically and rendered as structured text. Visual aids, such as historical closing price charts, are plotted using \texttt{matplotlib} and embedded into both the interface and downloadable PDF reports. This PDF generation, facilitated by the \texttt{fpdf} library, enables offline review and archiving.
 
 Importantly, the interface includes clear disclaimers and educational prompts, ensuring compliance with ethical guidance and reinforcing the tool’s non-advisory role. Collectively, the Streamlit-based interface serves not only as a functional front-end, but also as a pedagogical instrument that demystifies algorithmic financial decision-making for non-experts.
 
